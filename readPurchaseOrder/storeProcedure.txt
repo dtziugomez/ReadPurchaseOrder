@@ -1,0 +1,33 @@
+﻿CREATE PROCEDURE [dbo].[spEmployee]
+@EmployeeId int =null,
+@Name varchar(20)=NULL,
+@City varchar(20) =null,
+@Department varchar(20)=null,
+@Gender varchar(6)=null,
+@actionType varchar(25)
+AS
+BEGIN
+IF @actionType='SaveData'
+BEGIN
+ IF NOT EXISTS(SELECT * FROM tblEmployee WHERE EmployeeId=@EmployeeId)
+ BEGIN
+ INSERT INTO tblEmployee(Name,City,Department,Gender) Values(@Name,@City,@Department,@Gender)
+ END
+ ELSE
+ BEGIN
+  UPDATE tblEmployee SET Name=@Name,City=@City,Department=@Department,Gender=@Gender WHERE EmployeeId=@EmployeeId
+ END
+END
+IF @actionType='DeleteData'
+BEGIN
+DELETE tblEmployee WHERE EmployeeId=@EmployeeId
+END
+IF @actionType='FetchData'
+BEGIN
+SELECT EmployeeId as EmpId,Name,City,Department,Gender from tblEmployee
+END
+IF @actionType='FetchRecord'
+BEGIN
+SELECT EmployeeId as EmpId,Name,City,Department,Gender FROM tblEmployee where EmployeeId=@EmployeeId
+END
+END
