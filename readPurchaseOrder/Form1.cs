@@ -1,4 +1,5 @@
-﻿using iTextSharp.text.pdf;
+﻿using ClosedXML.Excel;
+using iTextSharp.text.pdf;
 using iTextSharp.text.pdf.parser;
 using System;
 using System.Collections.Generic;
@@ -21,12 +22,18 @@ namespace readPurchaseOrder
         SqlCommand sqlCmd;
         string EmployeeId = "";
 
+
         public Form1()
         {
             InitializeComponent();
             sqlCon = new SqlConnection(conStrin);
             sqlCon.Open();
         }
+        DataTable Encabezado = new DataTable();
+        DataTable Contenido = new DataTable();
+        DataTable TotalesLineTotal = new DataTable();
+        DataTable TotalesOrderTotal = new DataTable();
+
 
         #region pdf 
 
@@ -44,8 +51,17 @@ namespace readPurchaseOrder
                 
                 foreach (var item in parseString(text))
                 {
+                        if (item.Contains("\n"))
+                        {
+                            char[] separator = { '\n' };
+                            
+                            foreach (var word in item.Split(separator))
+                            {
 
-                    Listtext.Add(item);
+                            Listtext.Add(word);
+                            }
+                        }else { Listtext.Add(item); }
+                    
                 }
             }
             reader.Close();
@@ -73,6 +89,82 @@ namespace readPurchaseOrder
             }
             return items;
         }
+
+        #region dataTables
+        private void createTables()
+        {
+            Encabezado.Columns.Add("orderNo");
+            Encabezado.Columns.Add("revisionNo");
+            
+            Encabezado.Columns.Add("vendor");
+            
+            Encabezado.Columns.Add("shipTo");
+            Encabezado.Columns.Add("factory");
+            Encabezado.Columns.Add("markFor");
+            Encabezado.Columns.Add("billTo");
+            Encabezado.Columns.Add("fiscalRep");
+            Encabezado.Columns.Add("agent");
+            Encabezado.Columns.Add("purchaseGroup");
+            Encabezado.Columns.Add("customerPo");
+            Encabezado.Columns.Add("poPrint");
+            Encabezado.Columns.Add("orderType");
+            Encabezado.Columns.Add("customerDept");
+            Encabezado.Columns.Add("poIssue");
+            Encabezado.Columns.Add("poGroup");
+            Encabezado.Columns.Add("plant");
+            Encabezado.Columns.Add("poContact");
+            Encabezado.Columns.Add("paymentCategory");
+            Encabezado.Columns.Add("mfgOrigin");
+            Encabezado.Columns.Add("dateSent");
+            Encabezado.Columns.Add("businnesType");
+            Encabezado.Columns.Add("materialNumber");
+            Encabezado.Columns.Add("poItem");
+            Encabezado.Columns.Add("season");
+            Encabezado.Columns.Add("incoterms");
+            Encabezado.Columns.Add("contractualDeliveryDate");
+            Encabezado.Columns.Add("inboundPkg");
+            Encabezado.Columns.Add("incotermsPlace");
+            Encabezado.Columns.Add("handoverDate");
+            Encabezado.Columns.Add("mfgProcess");
+            Encabezado.Columns.Add("harborPort");
+            Encabezado.Columns.Add("customerHandoverPlace");
+            Encabezado.Columns.Add("quality");
+            Encabezado.Columns.Add("shipMode");
+            Encabezado.Columns.Add("shade");
+            Encabezado.Columns.Add("centralPoNumber");
+            Encabezado.Columns.Add("model");
+            Encabezado.Columns.Add("productType");
+            Encabezado.Columns.Add("merchDivision");
+            Encabezado.Columns.Add("colorDescription");
+            Encabezado.Columns.Add("class");
+            Encabezado.Columns.Add("conceptShortDesc");
+            Encabezado.Columns.Add("fabricContent");
+            Encabezado.Columns.Add("board");
+            Encabezado.Columns.Add("fishWildlifeInd");
+            Encabezado.Columns.Add("gender");
+            Encabezado.Columns.Add("downFeatherInd");
+            Encabezado.Columns.Add("pattern");
+            Encabezado.Columns.Add("fixture");
+            Encabezado.Columns.Add("rigIndicator");
+            Encabezado.Columns.Add("fabrication");
+            
+            Contenido.Columns.Add("size");
+            Contenido.Columns.Add("upc");
+            Contenido.Columns.Add("msrp");
+            Contenido.Columns.Add("customerSellingPrice");
+            Contenido.Columns.Add("price");
+            Contenido.Columns.Add("quantity");
+            Contenido.Columns.Add("amount");
+
+            TotalesLineTotal.Columns.Add("polLineTotalQuantity");
+            TotalesLineTotal.Columns.Add("polLineTotalAmount");
+            
+
+            TotalesOrderTotal.Columns.Add("purcahseOrderQuantity");
+            TotalesOrderTotal.Columns.Add("purcahseOrderAmount");
+            
+        }
+        #endregion
         private static string GetTextFromPDF(string path)
         {
             StringBuilder text = new StringBuilder();
@@ -98,13 +190,18 @@ namespace readPurchaseOrder
             dlg.ShowDialog();
             if (dlg.FileName != null)
             {
-                this.lstText.Items.Clear();
+                    lstText.DataSource = null;
+                    this.lstText.Items.Clear();
+                    List<string> dummy = pdfText(dlg.FileName);
                 foreach (var item in pdfText(dlg.FileName))
                 {
 
+                        
+                    
                  this.lstText.Items.Add(item);
                 }
-            }
+                    Encabezado.Rows.Add(dummy[28],dummy[31], dummy[34], dummy[38]);
+                }
 
             }
             catch (Exception ex)
@@ -117,18 +214,25 @@ namespace readPurchaseOrder
 
         private void ExportPDFToExcel()
         {
-            StringBuilder text = new StringBuilder();
-            if (dlg.FileName != null)
+            using (var workbook = new XLWorkbook())
             {
-                PdfReader pdfReader = new PdfReader(dlg.FileName);
-            for (int page = 1; page <= pdfReader.NumberOfPages; page++)
-            {
-                ITextExtractionStrategy strategy = new LocationTextExtractionStrategy();
-                string currentText = PdfTextExtractor.GetTextFromPage(pdfReader, page, strategy);
-                currentText = Encoding.UTF8.GetString(Encoding.Convert(Encoding.Default, Encoding.UTF8, Encoding.UTF8.GetBytes(currentText)));
-                text.Append(currentText);
-                pdfReader.Close();
+                var worksheet = workbook.Worksheets.Add("Sample Sheet");
+                worksheet.Cell("A1").Value = "Hello World!";
+                worksheet.Cell("A2").FormulaA1 = "=MID(A1, 7, 5)";
+                workbook.SaveAs("C://TPMX//HelloWorld.xlsx");
             }
+            //StringBuilder text = new StringBuilder();
+            //if (dlg.FileName != null)
+            //{
+            //    PdfReader pdfReader = new PdfReader(dlg.FileName);
+            //for (int page = 1; page <= pdfReader.NumberOfPages; page++)
+            //{
+            //    ITextExtractionStrategy strategy = new LocationTextExtractionStrategy();
+            //    string currentText = PdfTextExtractor.GetTextFromPage(pdfReader, page, strategy);
+            //    currentText = Encoding.UTF8.GetString(Encoding.Convert(Encoding.Default, Encoding.UTF8, Encoding.UTF8.GetBytes(currentText)));
+            //    text.Append(currentText);
+            //    pdfReader.Close();
+            //}
             //Response.Clear();
             //Response.Buffer = true;
             //Response.AddHeader("content-disposition", "attachment;filename=ReceiptExport.xls");
@@ -137,7 +241,7 @@ namespace readPurchaseOrder
             //Response.Write(text);
             //Response.Flush();
             //Response.End();
-            }
+        //}
         }
 
         
@@ -249,5 +353,10 @@ namespace readPurchaseOrder
         }
 
         #endregion
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            createTables();
+        }
     }
 }
