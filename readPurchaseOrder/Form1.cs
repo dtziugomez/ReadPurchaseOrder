@@ -26,8 +26,8 @@ namespace readPurchaseOrder
         public Form1()
         {
             InitializeComponent();
-            sqlCon = new SqlConnection(conStrin);
-            sqlCon.Open();
+            //sqlCon = new SqlConnection(conStrin);
+            //sqlCon.Open();
         }
         DataTable Encabezado = new DataTable();
         DataTable Contenido = new DataTable();
@@ -95,9 +95,7 @@ namespace readPurchaseOrder
         {
             Encabezado.Columns.Add("orderNo");
             Encabezado.Columns.Add("revisionNo");
-            
             Encabezado.Columns.Add("vendor");
-            
             Encabezado.Columns.Add("shipTo");
             Encabezado.Columns.Add("factory");
             Encabezado.Columns.Add("markFor");
@@ -200,7 +198,40 @@ namespace readPurchaseOrder
                     
                  this.lstText.Items.Add(item);
                 }
-                    Encabezado.Rows.Add(dummy[28],dummy[31], dummy[34], dummy[38]);
+                    Encabezado.Rows.Add(dummy[28],dummy[31], 
+                        dummy[34]+ " "+ dummy[39]+" " + dummy[40]+" "+dummy[46]
+                        + " "+dummy[47]+" "+ dummy[48] + " "+ dummy[49] + " "+
+                        dummy[56] + " "+ dummy[57] + " "+ dummy[58] + " "+
+                        dummy[59] + " "+ dummy[60] + " "+ dummy[61] + " "+
+                        dummy[65] + " "+ dummy[66] + " "+ dummy[67] + " "
+                        ,
+                        dummy[38]+" "+ dummy[41] + " "+ dummy[42] + " "+
+                        dummy[43] + " "+ dummy[44] + " "+ dummy[45] + " "+
+                        dummy[50] + " "+ dummy[51] + " "+ dummy[52] + " "+
+                        dummy[53] + " "+ dummy[54] + " "+ dummy[55] + " "+
+                        dummy[53] + " "+ dummy[54] + " "+ dummy[55] + " "+
+                        dummy[62] + " "+ dummy[63] + " "+ dummy[64] + " "+
+                        dummy[68] + " " + dummy[69],
+                        dummy[71] + " " + dummy[74]+ " " + dummy[75]+
+                        " " + dummy[76] + " " + dummy[77] + " " + dummy[78]+
+                        " " + dummy[79]+ " " + dummy[80] + " " + dummy[81]+
+                        " " + dummy[82] + " " + dummy[83] + " " + dummy[84]
+                        + " " + dummy[85] + " " + dummy[86] + " " + dummy[87]
+                        + " " + dummy[88] + " " + dummy[89] + " " + dummy[90]
+                        + " " + dummy[91]
+                        ,"",
+
+                        dummy[94] + " " + dummy[97]+ " " + dummy[98]+
+                        " " + dummy[99]+ " " + dummy[100]+
+                        " " + dummy[101] + " " + dummy[102]+" "+ dummy[103]+
+                        " " + dummy[104] + " " + dummy[105] + " " + dummy[106]+
+                        " " + dummy[107] + " " + dummy[108] + " " + dummy[109]+
+                        " "+dummy[110]+" "+ dummy[111]+" "+ dummy[113],""
+                        , dummy[115] + " "+dummy[116] + " "+dummy[117] + " "+
+                        dummy[118] + " "+ dummy[119] + " "+ dummy[120] + dummy[121] 
+
+                        );
+
                 }
 
             }
